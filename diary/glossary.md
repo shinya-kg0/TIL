@@ -66,3 +66,63 @@
 #### 注意点
 テンプレートや設定値を元データを壊さずに使いまわしたい時に有効である。  
 多少、浅いコピーの方が処理が楽である。
+
+
+## makeコマンドとMakefile
+
+コマンドをまとめて管理して、面倒な手打ち作業を効率化できる！
+
+### 具体例
+たとえば、Python開発で仮想環境を作って依存パッケージをインストールしてFlake8でコードをチェックしてテストを走らせて、、、
+
+ちょいちょい同じ作業を手打ちしていることがある。  
+→ これを効率化できるのが`Makefile`!!
+
+<details><summary>具体例</summary>
+
+```bash
+# Makefile
+
+# 仮想環境を作って依存関係をインストール
+init:
+	python -m venv .venv
+	. .venv/bin/activate && pip install -r requirements.txt
+
+# Linterチェック
+lint:
+	flake8 src
+
+# フォーマット
+format:
+	black src
+
+# テスト実行
+test:
+	pytest tests
+
+# 環境を綺麗にする
+clean:
+	rm -rf build src/*.c src/*.so __pycache__
+
+# 一括で全部やる
+all: lint format test
+```
+
+実行コマンド
+```bash
+make init     # 仮想環境＋パッケージインストール
+make lint     # コードチェック
+make format   # フォーマット（black）
+make test     # テスト実行
+make          # lint + format + test を全部実行（= all）
+```
+
+</details>
+
+### 補足
+`Makefile`を書くときの注意点は
+- 行頭スペースはタブじゃ無いとダメ
+- コマンドが複数あるときは && でつなぐ or 複数行書く
+- .PHONY をつけると保険になる（名前の衝突防止）  
+`.PHONY: init lint format test all`
+

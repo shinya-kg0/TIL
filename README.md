@@ -5,5 +5,6 @@
 
 ## まとめたいこと
 - [ ] numpy broadcastについて
-- [ ] 浅いコピー深いコピーについて（deepcopy()使い方）
+- [ ] Git HubでのCI/CDとは
+
 
