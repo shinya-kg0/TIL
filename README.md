@@ -4,7 +4,6 @@
 - 通勤時間はZenn、Qiitaで実務に関係あるトピックを読んでみる。
 
 ## まとめたいこと
-- [ ] numpy broadcastについて
 - [ ] Git HubでのCI/CDとは
 
 
