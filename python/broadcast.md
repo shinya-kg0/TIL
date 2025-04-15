@@ -25,11 +25,11 @@ b.shape = (3,)
 この時、bのshapeの次元に1を追加して`b.shape = (1, 3)`にする
 
 ### 具体例
-![ブロードキャスト例](./imgs/雑記-30.jpg)
+![ブロードキャスト例](./imgs/broadcast2.jpg)
 
 
 <div style="text-align: center;">
-  <img src="./imgs/JPEG画像-49BE-9AC4-3A-0.jpeg" alt="ブロードキャストできない例" width="600">
+  <img src="./imgs/broadcast1.jpeg" alt="ブロードキャストできない例" width="600">
 </div>
 
 ## ブロードキャスト結果を取得する関数
