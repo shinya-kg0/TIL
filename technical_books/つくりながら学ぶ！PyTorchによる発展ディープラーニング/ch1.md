@@ -130,6 +130,30 @@ class ImageTransform():
 
 ## VGGの出力層を変更して転移学習を可能にする
 
-VGGを例に出力層の調整方法についてメモしていく。
+### 出力層を変更する
+モデルを定義した後に、出力層のインデックスを指定して付け替える操作を行う。（例えば線形変換）
 
-（どのパラメータを学習させるかの設定の説明も追加する。）
+```py
+# VGG16の最後の出力層の出力ユニットをアリとハチの2つに付け替える
+net.classifier[6] = nn.Linear(in_features=4096, out_features=2)
+```
+
+### 層別に勾配計算をするかどうかを設定する
+以下の例では、出力層の重みとバイアスだけ学習させるように設定している。
+
+```py
+# 転移学習で学習させるパラメータを、変数params_to_updateに格納する
+params_to_update = []
+
+# 学習させるパラメータ名
+update_param_names = ["classifier.6.weight", "classifier.6.bias"]
+
+# 学習させるパラメータ以外は勾配計算をなくし、変化しないように設定
+for name, param in net.named_parameters():
+    if name in update_param_names:
+        param.requires_grad = True
+        params_to_update.append(param)
+        print(name)
+    else:
+        param.requires_grad = False
+```
