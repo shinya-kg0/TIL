@@ -42,6 +42,38 @@ def test_divide_by_zero():
 ```
 
 
+# 特殊メソッドについて
+普通のオブジェクトは組み込み関数が使える。  
+例えば、`__len__`などが事前に定義されているので`len(obj)`としても実行できる。
+
+`dir(obj)`で組み込み関数として何が定義されているかがわかる。  
+`cls.__class__.__name__`でインスタンス名を取得できる。
+
+ただ、自分で定義するクラスでは自分で組み込み関数を定義しないと使えない、、、  
+機械学習モデルを学習させる時のdatasetクラスではindexで中身の値を取り出す必要があるので`__getitem__`を定義する必要がある
+
+```py
+class MyList:
+    pass
+
+m = MyList()
+# print(len(m))  # → TypeError! __len__ がない！
+```
+
+次のように定義すれば使える！
+```py
+class MyData:
+    def __init__(self, data):
+        self.data = data
+
+    def __len__(self):
+        return len(self.data)
+
+>>> d = MyData([5,3,2,8])
+>>> len(d)
+
+    # d.__len__()でも呼び出せる
+```
 
 # 継承について
 
