@@ -42,3 +42,28 @@ git checkout feature/fix_login
 
 git rebase origin/develop
 ```
+
+## 作業ブランチがマージされたので削除したい
+
+いらなくなったブランチ（ローカル、リモート、追跡）を整理する流れをまとめる。  
+ただ、リモートのブランチは上司がすでに削除しており、ローカル環境の整理を想定する。
+
+具体例）
+```bash
+# mainブランチ上で
+git fetch -p
+
+# 必要があれば
+git stash
+
+git merge origin/main
+
+git stash pop
+
+# featureにあってmainにないコミットを探す
+git log main..feature/xxx --oneline
+
+# ↑がないことを確認して、ブランチを削除する
+git branch -d feature/xxx
+
+```
