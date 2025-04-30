@@ -101,5 +101,32 @@ KEY = 'test'
 # fmt: on
 ```
 
+# 単要素のタプルにコンマが必要な理由
+インデックスでアクセスしたければコンマが必要。  
+もし使わないなら、その文字の何番目かが出力
+
+```bash
+>>> a = ("cat")
+>>> a[0]
+'c'
+>>> b = ("cat",)
+>>> b[0]
+'cat'
+```
+```bash
+>>> c = (3456)
+>>> c
+3456
+>>> c[0]
+Traceback (most recent call last):
+  File "<stdin>", line 1, in <module>
+TypeError: 'int' object is not subscriptable
+>>> c = (3456,)
+>>> c
+(3456,)
+>>> c[0]
+3456
+```
+
 # 継承について
 
