@@ -137,4 +137,93 @@ TypeError: 'int' object is not subscriptable
 ```
 
 # 継承について
+参考ページ
+- [初学者のためのPython講座　オブジェクト指向編5　クラスの継承](https://qiita.com/kotakahe/items/b678250389af7fa885a5)
 
+## クラスの継承
+クラスの継承を行うことで、親クラスのメソッドを使えるようになる。  
+Attrもそのまま使える。（インスタンス化する時に値を渡す必要がある）
+
+```py
+
+# 親クラスを定義する
+class Human:
+    def __init__(self, name, age):
+        self.name = name
+        self.age = age
+    def status(self):
+        print("氏名：" + self.name, "年齢：" + str(self.age) + "歳")
+
+# 親クラスを継承した子クラスを定義する
+class Human_say(Human):
+    def introduce_myself(self):
+        print("私は" + self.name + "です。" + str(self.age) + "歳です。")
+
+# 子クラスのインスタンスを生成する
+a_man = Human_say("荒木", 58)
+# 親クラスのメソッドを呼び出す
+a_man.status()
+# 子クラスのメソッドを呼び出す
+a_man.introduce_myself()
+
+```
+
+## メソッドのオーバーライド
+
+クラスによってメソッドの挙動を変えたい場合はオーバーライドができる。  
+同じ名前のメソッドを改めて定義し直せば、親クラスのメソッドではなく子クラスだけのメソッドが使える。
+
+```py
+class Human:
+    def __init__(self, name, age):
+        self.name = name
+        self.age = age
+    def status(self):
+        print("氏名：" + self.name, "年齢：" + str(self.age) + "歳")
+
+class English_Human(Human):
+    # status()メソッドをオーバーライドする
+    def status(self):
+        print("NAME：" + self.name, "AGE：" + str(self.age))
+
+# 親クラスのインスタンスを生成する
+a_man = Human("荒木", 58)
+# 子クラスのインスタンスを生成する
+a_eng_man = English_Human("Araki", 58)
+# メソッドを呼び出す
+a_man.status()
+a_eng_man.status()
+```
+
+## 親クラスのメソッドを参照
+`super()`からメソッドを呼び出すと親クラスのメソッドが使える。
+
+例えば、初期化処理を改めて書かなくて済む（追加する分だけ記述すればいい）
+
+```py
+class Human:
+    def __init__(self, name, age):
+        self.name = name
+        self.age = age
+    def status(self):
+        print("氏名：" + self.name, "年齢：" + str(self.age) + "歳")
+
+class Human2(Human):
+    # 初期化メソッドをオーバーライドする
+    def __init__(self, name, age, blood, job):
+        # 親クラスの初期化メソッドを参照する
+        super().__init__(name,age)
+        # 変数を追加する
+        self.blood = blood
+        self.job = job
+    # status()メソッドをオーバーライドする
+    def status(self):
+        # 親クラスのstatus()メソッドを参照する
+        super().status()
+        # status()メソッドに追加する
+        print("血液型：" + self.blood,"職業：" + self.job)
+
+a_man = Human2("荒木", 58, "B", "漫画家")
+a_man.status()
+
+```
