@@ -227,3 +227,62 @@ a_man = Human2("荒木", 58, "B", "漫画家")
 a_man.status()
 
 ```
+
+# 属性をプロパティにする（getter, setterの設定）
+
+データの内部構造を隠しつつ、柔軟なインターフェースを提供できる。
+
+例えば、金額やパスワード、日付などのバリデーションが必要な値を扱う時
+
+```py
+class Wallet:
+    def __init__(self):
+        self._bills = []
+    
+    @property
+    def money(self):
+        """財布の合計金額を返す(getterの役割)"""
+        return sum(self._bills)
+    
+    @money.setter
+    def money(self, bills):
+        """
+        お札のリストをセット（2000円札は禁止）(自然と0以上を制限している)
+        例: wallet.money = [1000, 1000, 10000, 5000]
+        """
+        if not all(bill in [1000, 5000, 10000] for bill in bills):
+            raise ValueError("使えるのは 1000円、5000円、10000円札だけです（2000円札禁止）")
+        self._bills = bills
+    
+    @money.deleter
+    def money(self):
+        self._bills.clear()
+    
+
+if __name__ == "__main__":
+    
+    wallet = Wallet()
+    
+    # お札をセット
+    wallet.money = [1000, 1000, 5000, 10000]
+    
+    print(wallet.money)
+    
+    # 財布を空にする
+    del wallet.money
+    print(wallet.money)  # → 0
+    
+    # 2000円札を入れようとするとエラー
+    try:
+        wallet.money = [1000, 2000]
+    except ValueError as e:
+        # ValueError: 使えるのは 1000円、5000円、10000円札だけです（2000円札禁止）
+        print(e)
+```
+
+## デコレーターの説明
+|デコレーター|説明|
+|---|---|
+|@property|読み取り専用の属性を定義（wallet.money）|
+|@money.setter|属性に代入した時の動作（wallet.money = [...]）|
+|@money.deleter|del wallet.moneyで実行される処理|
