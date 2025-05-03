@@ -116,3 +116,114 @@ OSには次の状況を考慮して割り当てをリアルタイムで調整し
 環境変数は、OSやアプリケーションが動作する際の設定や情報を保存・参照するための仕組みであり、プログラムの挙動や動作環境を柔軟に制御するために不可欠なもの。
 
 winなら`set`、mac,linuxなら`env`で環境変数を確認できる。
+
+## Pythonicな書き方
+
+### 条件分岐と値の設定
+```py
+# ❌ 非Pythonic
+if x is not None:
+    y = x
+else:
+    y = 10
+
+# ✅ Pythonic
+y = x if x is not None else 10
+```
+
+###  ループとリスト操作（リスト内包表記）
+```py
+# ❌ 非Pythonic
+result = []
+for i in range(10):
+    result.append(i * 2)
+
+# ✅ Pythonic
+result = [i * 2 for i in range(10)]
+```
+
+### 辞書アクセス時のデフォルト値
+
+```py
+# ❌ 非Pythonic
+if 'key' in data:
+    value = data['key']
+else:
+    value = 'default'
+
+# ✅ Pythonic
+value = data.get('key', 'default')
+```
+
+### 変数値のスワップ
+```py
+# ❌ 非Pythonic
+temp = a
+a = b
+b = temp
+
+# ✅ Pythonic
+a, b = b, a
+```
+
+### 条件による早期リターン
+```py
+# ❌ 非Pythonic
+def process(data):
+    if data:
+        # 処理
+        ...
+
+# ✅ Pythonic
+def process(data):
+    if not data:
+        return
+    # 処理
+    ...
+```
+
+### Truthy / Falsy の活用
+```py
+# ❌ 非Pythonic
+if len(my_list) > 0:
+    ...
+
+# ✅ Pythonic
+if my_list:
+    ...
+```
+
+### 複数の値との比較
+```py
+# ❌ 非Pythonic
+if fruit == 'apple' or fruit == 'orange' or fruit == 'banana':
+    ...
+
+# ✅ Pythonic
+if fruit in {'apple', 'orange', 'banana'}:
+    ...
+```
+
+### enumerate の活用
+```py
+# ❌ 非Pythonic
+for i in range(len(items)):
+    print(i, items[i])
+
+# ✅ Pythonic
+for i, item in enumerate(items):
+    print(i, item)
+```
+
+### with文でリソースを安全に扱う
+```py
+# ❌ 非Pythonic
+f = open('file.txt')
+data = f.read()
+f.close()
+
+# ✅ Pythonic
+with open('file.txt') as f:
+    data = f.read()
+```
+
