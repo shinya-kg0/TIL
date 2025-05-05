@@ -286,3 +286,72 @@ if __name__ == "__main__":
 |@property|読み取り専用の属性を定義（wallet.money）|
 |@money.setter|属性に代入した時の動作（wallet.money = [...]）|
 |@money.deleter|del wallet.moneyで実行される処理|
+
+# シェルスクリプトとMakefile
+|比較項目|シェルスクリプト|Makefile|
+|---|---|---|
+|目的|手順の自動化<br>初期セットアップや複雑な処理|主にビルドの自動化（依存関係の管理）<br>定型タスク|
+|使用される言語|bash, zshなどのシェル言語|makeコマンド用の独自構文|
+|ファイル名の例|deploy.sh, setup.sh|Makefile|
+|実行方法|bash script.sh, ./script.sh|make, make ターゲット名|
+|向いている処理|サーバー設定、ファイル操作、スクリプト全般|ソースコードのビルド、複数ファイルの依存処理|
+
+**依存関係の管理とは、「何を変えたら何を作り直すべきか」を把握して、効率よく再処理するための仕組み。**
+
+## シェルスクリプト
+  - **使い道：処理を順番に自動実行する**
+  - 上から順に実行
+  - 毎回全て実行
+  - 柔軟性は高い（何でもかける）
+
+```bash
+#!/bin/bash
+echo "Python環境のセットアップを始めます..."
+
+python3 -m venv venv
+source venv/bin/activate
+
+pip install -r requirements.txt
+echo "セットアップ完了！"
+```
+
+### よくある用途
+- 環境構築
+- デプロイ作業
+- ローカルテスト一式の実行
+- 複数のコマンドをまとめて実行
+
+## Makefile
+  - 使い道：「目的ごとにタスクを定義」して、簡単に再実行できるようにする
+  - 依存関係に基づいて処理
+  - 差分だけ実行（変更ファイルのみ）
+  - 処理は限定的（ビルド処理向け）
+
+```makefile
+# 仮想環境の作成
+venv:
+	python3 -m venv venv
+
+# パッケージのインストール
+install:
+	source venv/bin/activate && pip install -r requirements.txt
+
+# テスト実行
+test:
+	source venv/bin/activate && pytest tests/
+
+# コード整形チェック
+lint:
+	flake8 src/
+
+# 全部一括実行
+all: venv install lint test
+```
+
+### よくある用途
+- 依存関係のインストール
+- テストの実行
+- コードチェック
+- 一連の作業
+
+
