@@ -227,3 +227,68 @@ with open('file.txt') as f:
     data = f.read()
 ```
 
+### 具体例（ソースコード全体）
+
+```py
+def process_user_profile(user):
+    # バリデーション（年齢が0以下またはNoneなら終了）
+    if user is None or user.get("age", 0) <= 0:
+        return "Invalid user data"
+
+    # 年齢によってカテゴリを分類（条件分岐と値の設定）
+    category = "adult" if user["age"] >= 18 else "minor"
+
+    # 趣味を大文字に変換（リスト内包表記）
+    hobbies = [hobby.upper() for hobby in user.get("hobbies", [])]
+
+    # ユーザー名の並びを入れ替え（変数のスワップ）
+    first_name = user.get("first_name", "")
+    last_name = user.get("last_name", "")
+    first_name, last_name = last_name, first_name  # 入れ替え
+
+    # 位置情報がなければデフォルトを設定（辞書.getの活用）
+    location = user.get("location", "Unknown")
+
+    # 好きな色が特定の候補に含まれるかチェック（複数の比較）
+    valid_colors = {"red", "blue", "green"}
+    favorite_color = user.get("favorite_color", "none")
+    color_status = "valid" if favorite_color in valid_colors else "invalid"
+
+    # 出力（enumerateで番号付きで表示）
+    print(f"User: {first_name} {last_name}")
+    print(f"Age category: {category}")
+    print(f"Location: {location}")
+    print(f"Favorite color: {favorite_color} ({color_status})")
+    print("Hobbies:")
+    for i, hobby in enumerate(hobbies, 1):
+        print(f"  {i}. {hobby}")
+
+    return "Profile processed successfully"
+
+if __name__ == '__main__':
+    
+    user_info = {
+    "first_name": "Alice",
+    "last_name": "Smith",
+    "age": 25,
+    "hobbies": ["reading", "cycling", "coding"],
+    "location": "Tokyo",
+    "favorite_color": "blue"
+    }
+
+    result = process_user_profile(user_info)
+    print(result)
+```
+
+```bash
+# 出力
+User: Smith Alice
+Age category: adult
+Location: Tokyo
+Favorite color: blue (valid)
+Hobbies:
+  1. READING
+  2. CYCLING
+  3. CODING
+Profile processed successfully
+```
