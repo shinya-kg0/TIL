@@ -404,3 +404,66 @@ for i in range(5):
 # 出力
 # 0, 1
 ```
+
+
+# Enumの使い方
+
+Enumとは、「**選択肢が決まっている値に名前をつけて安全に扱う仕組み**」
+
+例えば、
+- 注文の状態：未処理 / 処理中 / 配送済み
+- ユーザーの権限：一般 / 管理者 / ゲスト
+- エラーラベル：INFO / WARNING / ERROR
+
+これらを **数字や文字列で直接管理するより、Enumで明示する**ことで安全で読みやすくなります。
+
+## 基本的な使い方
+```py
+from enum import Enum
+
+class OrderStatus(Enum):
+    PENDING = 1
+    PROCESSING = 2
+    SHIPPED = 3
+
+# 使い方
+status = OrderStatus.PROCESSING
+
+if status == OrderStatus.PROCESSING:
+    print("注文は現在処理中です")
+```
+
+
+## Enumの実務利用例
+
+| シーン | 使いどころ | Enum例 |
+|--------|-------------|--------|
+| 注文管理 | 注文の状態 | `OrderStatus.PENDING` |
+| ユーザー管理 | 権限の区別 | `UserRole.ADMIN` |
+| バックエンドAPI | HTTPメソッド種別 | `HttpMethod.POST` |
+| ログ処理 | ログの重要度 | `LogLevel.WARNING` |
+| UI制御 | ボタンの状態 | `ButtonState.DISABLED` |
+
+## Enumのメリットまとめ
+
+| メリット | 説明 |
+|----------|------|
+| ✅ **意味が明確になる** | `status == OrderStatus.SHIPPED` のように、意図が明らかになる |
+| ✅ **間違った値を防げる** | `"SHIPPED"` など文字列比較ではなく、正しい選択肢しか使えない |
+| ✅ **保守性が高い** | 値を後から変更しても、名前でコードを書いていれば影響が少ない |
+| ✅ **IDE補完が効く** | VSCodeなどで `.SHIPPED` の候補が出る |
+| ✅ **ループ処理や比較が簡単** | 全パターンを `for status in OrderStatus:` で扱える |
+
+💡 他にもif文の比較などで数値を使うと早く処理できるので、Enumを使って**可読性と処理の速さを向上**できる。
+
+
+## Enumの注意点・デメリット
+
+| 注意点 | 解説 |
+|--------|------|
+| ❌ **値そのもの（数値/文字列）と直接比較できない** | `status == "SHIPPED"` はNG、正しくは `status == OrderStatus.SHIPPED` |
+| ❌ **Enumの `.value` に依存すると保守性が下がる** | 値より名前を使うことを意識 |
+| ❌ **JSONへの変換が一手間かかる** | Enumはそのままだと `JSON` にシリアライズできない（カスタム処理が必要） |
+
+PythonのEnumは、  
+「決められた選択肢に名前を与えて、安全に・分かりやすく使う仕組み」です。  
