@@ -13,6 +13,27 @@ zshを前提にしているが、下にlinux用のコマンドを追加してい
 `tac`：逆順にする  
 `tail`：末尾を出力 `-r`で逆順
 
+```bash
+basename /Users/kogashinya/01_work_space/apps/word-counter/backend/main.py
+# 出力：main.py
+```
+
+## `find`コマンド
+
+```bash
+# ファイル検索
+find . -type f -name '*.txt'
+
+# ディレクトリの検索
+find . -type d -name '^2025*.md'
+
+# xargsの応用
+find . -type f -name '*.txt' | xargs ls -l
+```
+
+- `xargs`を使って、標準入力として引数のリストを与える。
+  - サブディレクトリ内のファイルまで含めて全てのファイルに対して任意のコマンドを実行できる
+
 ## `wc`コマンド
 ファイルのバイト数、単語数、行数を数える（標準入力でもOK）
 
@@ -328,6 +349,9 @@ awk '$3 >= 100 {sum += $3} END {print sum}' file.txt
 
 # 2列目が30以上かつ3列目が「Developer」の行
 awk '$2 >= 30 && $3 == "Developer"' file.txt
+
+# プレフィックスを削除して表示
+find ~/test -type f -name '*.md' | awk -F/ '{print $NF}'
 ```
 
 ### CSVファイルからスコア集計
