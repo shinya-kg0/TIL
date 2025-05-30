@@ -18,6 +18,15 @@ basename /Users/kogashinya/01_work_space/apps/word-counter/backend/main.py
 # 出力：main.py
 ```
 
+- `echo $PATH | sed "s/:/\n/g"`   
+  → パス設定をみやすく
+
+- `for i in $(find test -name "hogehoge*.py"); do echo $i; done`  
+  → testディレクトリ内のhogehoge関連ファイルに対してループ処理
+
+- `for i in $(ls test_hogehoge*.md); do pandoc -f xx -o xx.docx $i; done`   
+  → 指定のディレクトリ内のファイルをdocx化
+
 ## `find`コマンド
 
 ```bash
