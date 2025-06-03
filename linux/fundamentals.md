@@ -243,3 +243,24 @@ ssh testuser@<IPアドレス>
 
 # パスワードを入力する
 ```
+
+# タイムスタンプの設定
+ドキュメントの納品作業の一環で、タイムスタンプをつけることがある
+
+日付指定をすることで、ド**キュメントや電子ファイルの依存関係**を明らかにする
+
+```bash
+# TMS：タイムスタンプを環境変数に設定する
+export TMS=202506161200
+
+touch -t $TMS test*.log
+
+# zipでアーカイブ
+zip -r hogehoge.zip test*.log
+
+touch -t $TMS hogehoge.zip
+
+# 環境変数を削除
+export -n TMS
+
+```
