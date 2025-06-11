@@ -467,3 +467,34 @@ if status == OrderStatus.PROCESSING:
 
 PythonのEnumは、  
 「決められた選択肢に名前を与えて、安全に・分かりやすく使う仕組み」です。  
+
+# パッチ処理について
+pytestだと`monkeypatch`、汎用的なものだと`textfixtures.replace`が使える！
+
+細かい使い方はノート6月に記載
+
+## monkeypatch
+
+```py
+@pytest.fixture
+def patch_hoge(monkeypatch):
+    def dummy(*args):
+        return True
+    monkeypatch.setattr(target, attr, dummy)
+
+def test_hogehoge(patch_hoge):
+    pass
+```
+
+## textfixtures.replace
+
+```py
+from textfixtures import replace
+
+def patch_hoge(*args):
+    return True
+
+@replace('target_func', patch_hoge)
+def test_hogehoge():
+    pass
+```
