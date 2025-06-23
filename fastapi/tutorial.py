@@ -1,6 +1,7 @@
-from fastapi import FastAPI, Query, Path, Body    
+from fastapi import FastAPI, Query, Path, Body, Cookie, Header, status, Form
 from enum import Enum
-from pydantic import BaseModel, Field, HttpUrl
+from pydantic import BaseModel, Field, HttpUrl, EmailStr
+from typing import Annotated, Any
 
 class ModelName(str, Enum):
     resnet = "resnet"
@@ -25,6 +26,70 @@ class Item(BaseModel):
 class User(BaseModel):
     username: str
     full_name: str | None = None
+    
+class Cookies(BaseModel):
+    # 受け付けるCookieを制限する
+    model_config = {"extra": "forbid"}
+
+    session_id: str
+    fatebook_tracker: str | None = None
+    googall_tracker: str | None = None
+    
+class CommonHeaders(BaseModel):
+    model_config = {"extra": "forbid"}
+    
+    host: str
+    save_data: bool
+    if_modified_since: str | None = None
+    traceparent: str | None = None
+    x_tag: list[str] = []
+    
+class FormData(BaseModel):
+    model_config = {"extra": "forbid"}
+    username: str
+    password: str
+    
+# ここら辺は次のようにリファクタできる！
+# class UserIn(BaseModel):
+#     username: str
+#     password: str
+#     email: EmailStr
+#     full_name: str | None = None
+    
+# class UserOut(BaseModel):
+#     username: str
+#     email: EmailStr
+#     full_name: str | None = None
+
+# class UserInDB(BaseModel):
+#     username: str
+#     hashed_password: str
+#     email: EmailStr
+#     full_name: str | None = None
+
+class UserBase(BaseModel):
+    username: str
+    email: EmailStr
+    full_name: str | None = None
+    
+class UserIn(UserBase):
+    password: str
+
+class UserOut(UserBase):
+    pass
+
+class UserInDB(UserBase):
+    hashed_password: str
+
+
+def fake_password_hasher(raw_password: str):
+    return "supersecret" + raw_password
+
+def fake_save_user(user_in: UserIn):
+    hashed_password = fake_password_hasher(user_in.password)
+    user_in_db = UserInDB(**user_in.dict(), hashed_password=hashed_password)
+    print("User saved! ..not really")
+    return user_in_db
 
 app = FastAPI()
 
@@ -87,3 +152,48 @@ async def read_items(
     if q:
         results.update({"q": q})
     return results
+
+# 各種型ヒントの使い方
+@app.get("/items/")
+async def read_items(ads_id: Annotated[str | None, Cookie()] = None):
+    return {"ads_id": ads_id}
+
+@app.get("/items/")
+async def read_items(
+    strange_header: Annotated[str | None, Header(default=True, convert_underscores=False)] = None
+):
+    return {"strange_header": strange_header}
+
+@app.get("/items/")
+async def read_items(x_token: Annotated[list[str] | None, Header()] = None):
+    return {"X_Token values": x_token}
+
+@app.get("/items/")
+async def read_items(cookies: Annotated[Cookies, Cookies()]):
+    return cookies
+
+@app.get("/items/")
+async def read_items(headers: Annotated[CommonHeaders, Header()]):
+    return headers
+
+# これはアンチパターン
+@app.post("/user/")
+async def create_user(user: UserIn) -> UserIn:
+    return user
+
+# これだとレスポンスとしてパスワードが漏れることはない
+@app.post("/user/", response_model=UserOut, response_model_exclude_unset=True)
+async def create_user(user: UserIn) -> Any:
+    return user
+
+@app.post("/items/", status_code=status.HTTP_201_CREATED)
+async def create_item(name: str):
+    return {"name": name}
+
+@app.post("/login/")
+async def login(user_name: str = Form(), password: str = Form()):
+    return {"user_name": user_name}
+
+@app.post("/login/")
+async def login(data: Annotated[FormData, Form()]):
+    return data
