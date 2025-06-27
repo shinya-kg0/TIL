@@ -1,0 +1,7 @@
+/* cssの名前のバッティングを避けることができる */
+.button {
+    padding: 10px 20px;
+    background-color: brown;
+    color: antiquewhite;
+}
+
