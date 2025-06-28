@@ -1,9 +1,18 @@
+import { useState, useEffect } from 'react';
+
 function Display (props) {
-    const { count } = props
+
+    const [text, setText] = useState("Loading...")
+
+    useEffect(() => {
+        setTimeout(() => {
+            setText(`カウント: ${props.count}`)
+        }, 1000)
+    }, [])
 
     return (
         <>
-            カウント：{count}
+            {text}
         </>
     )
 }

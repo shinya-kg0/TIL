@@ -1,34 +1,20 @@
 import './App.css'
-import Button from './components/Button/Button'
-import Display from "./components/Display/Display"
-import { useState, useEffect } from 'react';
+import { BrowserRouter, Routes, Route } from 'react-router-dom'
+
+import Home from './pages/Home'
+import SamplePage from './pages/SamplePage'
 
 function App() {
 
-  const [count, setCount] = useState(0);
-
-  const handleClick = () => {
-    setCount(count + 1)
-  }
-
-  useEffect(()=>{
-    console.log("count: ", count)
-    if (count > 10) {
-      setCount(0)
-    }
-  }, [count])
-
   return (
-    // Reactは複数タグを書く時、全体を一つのタグで囲んでおかないとエラーになる
+
     <>
-      <h1>Hello World!</h1>
-      <Button type="submit" disabled={false} onClick={handleClick}>
-        ボタン
-      </Button>
-      <div>
-        <Display count={count}/>
-      </div>
-      
+    <BrowserRouter>
+      <Routes>
+        <Route path='/' element={<Home />}/>
+        <Route path='/sample-page' element={<SamplePage/ >} />
+      </Routes>
+    </BrowserRouter>
     </>
   )
 }
