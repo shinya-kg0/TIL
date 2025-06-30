@@ -1,3 +1,8 @@
+# 環境構築
+
+はじめは、対象のディレクトリを作って`npm create vite@latest`を実行Project nameを`.`にして展開する。
+
+
 # CSSについて
 
 ## 命名はキャメルケースを使う！
@@ -133,3 +138,79 @@ export default Home
     - 表示までの演出（カーテンコール）を2秒表示させて非表示
     - クラッカー演出
     - 問題総数と正解数を取得し、表示
+
+## ページコンポーネントを作成
+
+まずは各コンポーネントの土台を作って、ルーティングを行う
+
+各コンポーネントで`rfc`を用意しておく
+
+## ルーティングの設定
+
+`npm install react-router-dom`でルーティングに必要なパッケージをインストール
+
+定数を別ファイルにまとめておく
+```js
+export const ROUTES = {
+    HOME: "/",
+    QUIZ: "/quiz",
+    RESULT: "/result"
+}
+```
+
+※ 2単語以上はアンダースコアをつける（`ROUTE_PATH`）
+
+App.jsxのreturn内にレンダリング用のコードを記載
+
+```js
+  return (
+    <>
+      <BrowserRouter>
+        <Routes>
+          <Route path={ROUTES.HOME} element={HomePage}/>
+          <Route path={ROUTES.QUIZ} element={QuizPage}/>
+          <Route path={ROUTES.RESULT} element={ResultPage}/>
+        </Routes>
+      </BrowserRouter>
+    </>
+  )
+```
+
+## TOPページの作成
+
+タイトルとQuizページにレンダリングする用のLinkコンポーネントを追加
+
+クイズの内容は、別で用意しておく
+
+## クイズページのコンポーネントを作成
+
+まずは静的に表示させる。Display.jsxを追加
+
+`XXX.module.css`はスペルミスに注意  
+modulesにすると表示されない
+
+まずは静的に作ってみて、そこから動的に動かしていく方針が良い
+
+小さいコンポーネントは`children`でデータを渡して、cssで装飾したりする。  
+一つ上のコンポーネントにデータを取得するロジックを書いて、子コンポーネントに渡す
+
+### mapの使い方
+
+その要素を一意に特定するために、`key`を設定しておく必要がある！
+
+他にも色々な使い方ができる！https://zenn.dev/mhirata/articles/c78f34123587c7
+
+```js
+    return (
+        <>
+            <Display>
+                {`Q1. ${quizData[quizIndex].question}`}
+            </Display>
+            {
+                quizData[quizIndex].options.map((option, index) => {
+                    return <Button key={`option-${index}`}>{option}</Button>
+                })
+            }
+        </>
+    )
+```
