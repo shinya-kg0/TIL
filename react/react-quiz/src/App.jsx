@@ -12,12 +12,12 @@ function App() {
     <>
       <BrowserRouter>
         <Routes>
-          <Route path={ROUTES.HOME} element={<HomePage />}/>
-          <Route path={ROUTES.QUIZ} element={<QuizPage />}/>
-          <Route path={ROUTES.RESULT} element={<ResultPage />}/>
+          <Route path={ROUTES.HOME} element={<HomePage />} />
+          <Route path={ROUTES.QUIZ} element={<QuizPage />} />
+          <Route path={ROUTES.RESULT} element={<ResultPage />} />
         </Routes>
       </BrowserRouter>
-    
+
 
     </>
   )

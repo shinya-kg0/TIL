@@ -214,3 +214,96 @@ modulesにすると表示されない
         </>
     )
 ```
+
+※ cmd + Shift + Pでコマンドパレットを開き`Format Document`を使うことでインデントを綺麗に揃えることができる！
+
+## クイズの正誤判定ロジック
+
+定数にしていたものを`useState, useEffect`を使いながらロジックを実装していく
+
+### 関数型更新
+
+useStateは現在のstate変数を引数として受け取れる！
+```js
+// 初めの状態ではprevに初期値の0が入っている
+setQuizIndex((prev) => prev + 1);
+
+// これは推奨されない
+// 仮に2回呼び出した時にまとめて処理されることもあるため、バグの原因に！
+setQuizIndex(quizIndex + 1);
+```
+
+### スプレッド構文
+
+より簡単に配列の要素を追加できる！
+```js
+// 現在のstate変数を引っ張ってきて、trueを追加する処理を書いている
+setAnswerLogs((prev) => [...prev, true]);
+```
+
+## useEffectで全問回答後にページ遷移させる
+answerLogsが更新されるたびにその問題を全て回答したかをチェックする
+
+navigationは2つの引数を受け取ることができる
+- 遷移したいパス
+- 渡したい値
+
+```js
+    useEffect(() => {
+        if(answerLogs.length === MAX_QUIZ_LEN) {
+            navigation(ROUTES.RESULT, {
+                state: {
+                    maxQuizLen: MAX_QUIZ_LEN
+                }
+            });
+        }
+    }, [answerLogs])
+```
+
+### .filter()で正解数だけカウントする
+条件式を使ってその条件にあうような新しい配列を作る
+
+```js
+  correctNum = answerLogs.filter((answer) => {
+      return answer === true
+  })
+```
+
+### 条件付きレンダリング
+
+`&&`は条件文でAND条件を設定したい時に使う論理演算子
+
+問題数を制御するなどに使える！
+
+```js
+// quizData[quizIndex]が存在するならDisplayをレンダリングする
+  {quizData[quizIndex] && <Display>{`Q1. ${quizData[quizIndex].question}`}</Display>}
+
+
+// if/elseのような書き方もできる！
+  {quizData[quizIndex] ? <Display>{`Q1. ${quizData[quizIndex].question}`}</Display> : <p>エラーが発生</p>}
+```
+
+
+## ソースコードの省略
+
+実際は引数が一つの場合は括弧を省略しても良い
+
+```js
+setAnswerLogs((prev) => [...prev, true]);
+
+setAnswerLogs(prev => [...prev, true]);
+```
+
+filterで1行の処理でreturnを返す場合は、省略できる！
+
+```js
+        if (answerLogs.length === MAX_QUIZ_LEN) {
+            const correctNum = answerLogs.filter((answer) => {
+                return answer === true
+            })}
+
+// こっちの方がスマート
+        if (answerLogs.length === MAX_QUIZ_LEN) {
+            const correctNum = answerLogs.filter(answer => answer === true)}
+```

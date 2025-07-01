@@ -1,11 +1,11 @@
 import React from 'react'
 import styles from "./Button.module.css"
 
-export default function Button({ children }) {
+export default function Button({ children, onClick }) {
     return (
 
-        <button type='button' className={styles.button}>
-            <span className={styles.buttonInner}>{ children }</span>
+        <button type='button' className={styles.button} onClick={onClick}>
+            <span className={styles.buttonInner}>{children}</span>
         </button>
     )
 }
