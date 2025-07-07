@@ -1,6 +1,6 @@
 import { Box, Card, CardBody, CardHeader, Button, ChakraProvider, Checkbox, Flex, Input, Text } from '@chakra-ui/react'
 import './App.css'
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 
 type Record = {
   id: number
@@ -23,6 +23,15 @@ function App() {
     setIsIncome(false)
     }
   
+  useEffect(() => {
+    getRecords()
+
+    async function getRecords() {
+      const response = await fetch("http://localhost:3000/records")
+      const data = await response.json()
+      setRecords(data)
+    }
+  }, [])
 
   return (
     <ChakraProvider>
