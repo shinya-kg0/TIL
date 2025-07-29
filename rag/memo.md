@@ -81,3 +81,58 @@
 | **`vectorSearchProfile`** | 適用プロファイル名 | **`"vector-profile-1"`** |
 
 
+## LlamaIndexのクラス
+
+- `SearchClient`: 低レベルなAPIクライアント。Azure AI Search サービスとの直接的な通信を担当し、インデックスへのデータの読み書きや検索を実行します。
+
+- `AzureAISearchVectorStore`: LlamaIndex と Azure AI Search の橋渡し役。LlamaIndex のノード構造を Azure AI Search のインデックススキーマにマッピングし、SearchClient を使ってLlamaIndexの要求をAzure AI Searchに伝えます。
+
+- `VectorStoreIndex`: LlamaIndexのRAGインデックス管理の中心。与えられたノードをベクトル化し、vector_store を介して永続化（インデックス化）し、後で検索可能な状態にします。
+
+### SearchClient
+
+- **役割**: SearchClient は、Azure AI Search サービス自体と直接やり取りを行う窓口です。
+
+```py
+search_client = SearchClient(
+    endpoint=st.SEARCH_SERVICE_ENDPOINT,
+    index_name=st.SEARCH_SERVICE_INDEX_NAME,
+    credential=AzureKeyCredential(st.SEARCH_SERVICE_API_KEY),
+)
+```
+
+これは、特定の検索インデックスに対して、ドキュメントの追加、更新、削除、そして検索クエリの実行といった低レベルな操作を行うための「道具」を提供します。
+
+
+### AzureAISearchVectorStore
+
+- **役割**: AzureAISearchVectorStore は、LlamaIndex の抽象化されたベクトルストアインターフェースを、Azure AI Search サービスに具体的にマッピングする役割を担います。
+
+```py
+vector_store = AzureAISearchVectorStore(
+    search_or_index_client=search_client,
+    id_field_key=ID_FIELD_KEY,
+    chunk_field_key=CHUNK_FIELD_KEY,
+    embedding_field_key=EMBEDDING_FIELD_KEY,
+    metadata_string_field_key=METADATA_STRING_FIELD_KEY,
+    doc_id_field_key=DOC_ID_FIELD_KEY,
+    dim=1536
+)
+```
+
+これは、LlamaIndex が扱うノードデータ（テキストチャンクとその埋め込み、メタデータ）を、Azure AI Search のインデックススキーマに合わせてどのように保存・検索するかを定義します。search_client を内部で利用して、実際に Azure AI Search との通信を行います。
+
+
+### VectorStoreIndex
+
+- **役割**: VectorStoreIndex は、LlamaIndex の RAG システムの中核となるコンポーネントで、情報のインデックス化と検索の両方を管理します。
+
+```py
+index = VectorStoreIndex(
+    nodes=nodes,
+    vector_store=vector_store,
+    show_progress=True,
+)
+```
+
+与えられた nodes (テキストチャンク) を受け取り、それらを埋め込みモデルでベクトル化し、その結果を vector_store を通じて Azure AI Search にアップロードするという「インデックス作成」のプロセスをオーケストレーションします。また、後でクエリエンジンを作成する際には、この index を通じて検索も行われます。
