@@ -498,3 +498,260 @@ def patch_hoge(*args):
 def test_hogehoge():
     pass
 ```
+
+
+# ジェネレータ
+
+「一度に全部ではなく、必要な分だけ順番に値を返す仕組み」
+
+普通のリストだと、全ての要素をメモリ上に展開する。
+```py
+nums = [x for x in range(1000000)]  # 全要素を作成
+```
+逆にジェネレータだと、必要になった時に次の値を生成する。（遅延評価という）  
+→ メモリ効率が非常に良い
+
+## ジェネレータの作り方
+
+- 関数の中で`yield`を使うと、ジェネレータ関数になる。
+
+```py
+def count_up_to(n):
+    count = 1
+    while count <= n:
+        yield count   # 値を返すが、関数は終了しない
+        count += 1
+
+gen = count_up_to(3)
+print(next(gen))  # 1
+print(next(gen))  # 2
+print(next(gen))  # 3
+```
+
+yield は return と違って、**途中で処理を止めて次回再開できる**のがポイント  
+→ ステート（状態）を持てる
+
+
+## ジェネレータ式
+
+リスト内包表記的な感じで、丸括弧を使うとジェネレータ式になる
+
+```py
+gen = (x * x for x in range(5))  # 0〜4の2乗を順に返す
+
+print(next(gen))  # 0
+print(next(gen))  # 1
+print(next(gen))  # 4
+
+for value in gen:  # 残りを順に取り出す
+    print(value)   # 9, 16
+```
+
+## 活用できる場面
+
+- 大量データの処理（ログ解析、CSVストリーム処理など）
+- 無限列の生成（例: 自然数、フィボナッチ数列）
+- ファイルやネットワークからの逐次読み込み
+
+### 具体例
+
+#### 大容量ファイルの読み込み
+
+CSVやログファイルなど、GB単位のデータを処理する時にジェネレータは必須。
+
+- 全行をリスト化せず、1行ずつ読み込むのでメモリ効率が良い。
+- ログ解析やストリーミングデータ処理で超よく使うパターン。
+
+```py
+def read_large_file(file_path):
+    with open(file_path, "r", encoding="utf-8") as f:
+        for line in f:     # ファイルオブジェクト自体がジェネレータ
+            yield line.strip()
+
+for row in read_large_file("access.log"):
+    # メモリに全行を載せずに1行ずつ処理
+    process(row)
+```
+
+
+
+#### Web APIのページネーション
+
+APIが1リクエストあたり100件しか返さない場合、ジェネレータで順次取得。
+
+- 無限に近いページ数でも、使う分だけ順次取得。
+- バッチ処理やスクレイピングでかなり多用。
+
+```py
+import requests
+
+def fetch_users():
+    page = 1
+    while True:
+        res = requests.get(f"https://example.com/api/users?page={page}")
+        data = res.json()
+        if not data["users"]:
+            break
+        for user in data["users"]:
+            yield user
+        page += 1
+
+for user in fetch_users():
+    save_to_db(user)
+```
+
+#### PyTorchのDataset & DataLoader
+
+PyTorchではDatasetがジェネレータ的役割を果たします。
+
+```py
+from torch.utils.data import Dataset, DataLoader
+import torch
+
+class MyDataset(Dataset):
+    def __init__(self, file_paths):
+        self.file_paths = file_paths
+
+    def __len__(self):
+        return len(self.file_paths)
+
+    def __getitem__(self, idx):
+        x = torch.randn(3,224,224)  # 画像読み込み
+        y = torch.randint(0,2,(1,)) # ラベル
+        return x, y
+
+dataset = MyDataset(file_paths=["a","b","c"])
+loader = DataLoader(dataset, batch_size=32, shuffle=True)
+
+for x_batch, y_batch in loader:
+    # バッチ単位で順次ロード
+    pass
+```
+
+- DataLoader内部はイテレータ（ジェネレータ）で動いている。
+- GPUメモリに入りきらないデータでも問題なく扱える。
+
+#### 推論パイプラインで逐次実行
+
+学習済みモデルに対して、膨大なデータを推論させる場合もジェネレータが便利です。
+
+```py
+def predict_in_batches(model, data_stream, batch_size=64):
+    batch = []
+    for sample in data_stream:
+        batch.append(sample)
+        if len(batch) == batch_size:
+            yield model.predict(batch)
+            batch.clear()
+    if batch:
+        yield model.predict(batch)
+```
+
+- 推論も一気にではなく、バッチ単位で分割可能。
+- サーバー推論やバッチ推論の効率化に使う。
+
+
+# クロージャ
+
+Pythonでいうクロージャは、関数が定義されたときのスコープ（変数の状態）を保持したまま、外側の関数が終了しても使える関数。
+
+→ イメージは「外の変数を持ち歩く関数」
+
+```py
+def outer_function(x):
+    def inner_function(y):
+        return x + y  # outer_functionのxを覚えている
+    return inner_function
+
+adder_5 = outer_function(5)
+print(adder_5(10))  # 15
+print(adder_5(3))   # 8
+```
+
+- outer_function が終了しても x=5 が記憶されている
+- adder_5 は「5を加算する関数」として動く
+
+## よく使う場面
+
+### デコレータ
+
+Pythonのデコレータは内部的にクロージャを利用しています。
+
+例：ログ出力デコレータ
+
+```py
+def log_decorator(func):
+    def wrapper(*args, **kwargs):
+        print(f"Calling {func.__name__}")
+        return func(*args, **kwargs)
+    return wrapper
+
+@log_decorator
+def process_data(data):
+    return data * 2
+
+process_data(10)  # Calling process_data
+```
+
+- wrapper が log_decorator のスコープを保持
+- 実務ではログ出力、認証、キャッシュ制御、リトライ処理などで多用
+
+
+### 設定値や状態を持つ関数
+
+外部変数をグローバルに置きたくない場合、クロージャでカプセル化します。
+
+```py
+def multiplier_factory(factor):
+    def multiplier(value):
+        return value * factor
+    return multiplier
+
+double = multiplier_factory(2)
+triple = multiplier_factory(3)
+
+print(double(5))  # 10
+print(triple(5))  # 15
+```
+
+- 同じロジックで係数だけ変える処理などに便利
+- 設定値が変数として「隠れる」のでグローバルを汚さない
+
+### 機械学習パイプラインの前処理
+
+クロージャで前処理関数を生成して、状態（標準化の平均・分散など）を保持できます。
+
+```py
+def standardizer(mean, std):
+    def transform(x):
+        return (x - mean) / std
+    return transform
+
+std_transform = standardizer(mean=100, std=15)
+print(std_transform(115))  # 1.0
+```
+
+- データ前処理パラメータをクロージャに持たせる
+- モデルの推論時も同じ変換を再利用できる
+
+## キャッシュ関数（メモ化）
+
+外部変数を保持して関数呼び出しを高速化。
+
+```py
+def memoize():
+    cache = {}
+    def wrapper(x):
+        if x not in cache:
+            cache[x] = x ** 2
+        return cache[x]
+    return wrapper
+
+square = memoize()
+print(square(4))  # 計算
+print(square(4))  # キャッシュから
+```
+
+- 同じ計算を何度もせずに済む
+- 数値計算や機械学習の前処理高速化に使える
+
