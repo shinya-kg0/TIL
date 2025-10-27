@@ -1,0 +1,17 @@
+acceptlang
+janome
+jinja2
+numpy
+openai-whisper
+opencv-python
+openpyxl
+pandas
+pillow
+pykakasi
+requests
+sacremoses
+sentencepiece
+streamlit
+torch
+transformers[ja]
+wordcloud
