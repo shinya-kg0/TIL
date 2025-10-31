@@ -12,7 +12,7 @@ def get_tokens(text):
     tokens = [(w.surface, w.part_of_speech) for w in t.tokenize(sanitized)]
     return tokens
 
-def get_wordcloude(tokens, pos_list):
+def get_wordcloud(tokens, pos_list):
     pos_joined = "|".join(pos_list)
     regexp = re.compile(f"^({pos_joined})")
     selected = [t[0] for t in tokens if regexp.search(t[1])]
