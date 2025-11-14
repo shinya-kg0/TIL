@@ -29,7 +29,7 @@ def st_render(pil_image):
                 label="変換先フォーマット",
                 options=get_extensions(),
                 index=None,
-                horizonal=True
+                # horizonal=True
             )
         if extension:
             filename, buffer = image_to_bytes(pil_image, extension)
@@ -39,7 +39,7 @@ def st_render(pil_image):
                 st.download_button(
                     f"{extension}としてダウンロード: {filename}",
                     buffer, 
-                    filename=filename
+                    file_name=filename
                 )
                 
 if __name__ == "__main__":

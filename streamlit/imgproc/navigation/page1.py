@@ -12,6 +12,9 @@ def onchage():
 st.file_uploader("画像ファイルをアップロードしてください",
                 key="_image_upload", on_change=onchage)
 
+if "img_upload" not in st.session_state:
+    st.session_state.img_upload = None
+
 if "image_upload" in st.session_state:
     img = st.session_state.image_upload
     st.image(img)
