@@ -116,6 +116,10 @@ FROM eva
 ORDER BY kawaii DESC;
 ```
 
+- SERECTでつけた別名も指定できる
+- SERECTに指定していない列や、集約関数も渡せる
+
+
 ## GROUP BY
 
 同じ項目のデータを集計する（複数のデータごと集計したい）
@@ -241,3 +245,44 @@ WEHERE price >= (SELECT AVG(price)
                 WHERE i1.category = i2.category
                 GROUP BY category);
 ```
+
+
+# 検索の基本
+
+- 条件式内にも計算式を入れられる。
+
+```sql
+SELECT shohin_mei, hanbai_tanka, shiire_tanka
+FROM Shohin
+WHERE hanbai_tanka - shiire_tanka > 500
+```
+
+```sql
+SELECT shohin_mei, hannbai_tanka,
+       hannbai_tanka * 2 AS "hannbai_tanka x2"
+FROM Shohin;
+```
+
+- NULLを計算すると答えはNULLになる
+- ANDはORより強いのでOR優先したい時は`()`で囲む
+
+- NULLを含む真理値は注意が必要
+  - 真、偽だけでなく、不明（UNKNOWN）がある
+
+# 集約と並べ替え
+
+- `COUNT()`は引数でNULLの扱いが変わる
+  - `COUNT(*)`: 全行の数（NULLも含まれる）
+  - `COUNT(column)`: 値が入っている数を集計（NULLは含まれない）
+
+- 集約関数はNULLを無視する
+  - 基本的には列を引数に指定するので
+
+- `MAX()`, `MIN()`は大体のデータ型に適応できる
+  - 例えば、日付など
+
+- `WHERE()`: 行に対する条件指定
+- `HAVING()`: グループに対する条件指定（GROUP BYしたあと）
+  - 集約キーに対する条件など、どちらにも書ける場合は`WHERE`を使う
+  - テーブルは早く小さくした方がいい
+
