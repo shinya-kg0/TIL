@@ -286,3 +286,58 @@ FROM Shohin;
   - 集約キーに対する条件など、どちらにも書ける場合は`WHERE`を使う
   - テーブルは早く小さくした方がいい
 
+# 複雑な問い合わせ
+
+## サブクエリ
+
+- スカラサブクエリ：戻り値がスカラになる
+
+```sql
+SELECT shohin_id,
+       shohin_mei,
+       hanbai_tanka,
+       (SELECT AVG(hanbai_tanka)
+          FROM Shohin) AS avg_tanka
+```
+
+- 相関サブクエリ
+  - 小分けにしたグループ内での比較をするときに使う
+  - 集合のカットを行なっている
+
+```sql
+SELECT shohin_bunrui, shohin_mei, hanbai_tanka
+  FROM Shohin AS S1
+ WHERE hanbai_tanka > (SELECT AVG(hanbai_tanka)
+                         FROM Shohin AS S2
+                        -- 同じ商品分類内で比較を行うことを明示
+                        WHERE S1.shohin_bunrui = S2.shohin_bunrui
+                        GROUP BY shohin_bunrui);
+```
+
+
+# 関数、述語、CASE式
+
+- `CURRENT_TIMESTAMP`: 現在の日時
+- `EXTRACT()`: 日付要素の切り出し
+
+```sql
+SELECT CURRENT_TIMESTAMP,
+       EXTRACT(YEAR   FROM CURRENT_TIMESTAMP) AS year,
+       EXTRACT(MONTH  FROM CURRENT_TIMESTAMP) AS month,
+       EXTRACT(DAY    FROM CURRENT_TIMESTAMP) AS day,
+       EXTRACT(HOUR   FROM CURRENT_TIMESTAMP) AS hour,
+       EXTRACT(MINUTE FROM CURRENT_TIMESTAMP) AS minute,
+       EXTRACT(SECOND FROM CURRENT_TIMESTAMP) AS second,
+
+```
+
+- INの引数にサブクエリ
+
+```sql
+SELECT shohin_mei, hanbai_tanka
+  FROM Shohin
+ WHERE shohin_id IN (SELECT shohin_id
+                       FROM TenpoShohin
+                      WHERE tenpo_id = '000c')
+```
+
