@@ -341,3 +341,86 @@ SELECT shohin_mei, hanbai_tanka
                       WHERE tenpo_id = '000c')
 ```
 
+- COALESCEの使い方
+
+```sql
+SELECT COALESCE(TS.tempo_id, "不明") AS tempo_id,
+       COALESCE(TS.tempo_mei, "不明") AS tempo_mei
+       S.shohin_id,
+       S.shohin_mei,
+       S.hanbai_tanka
+  FROM TempoShohin TS RIGHT OUTER JOIN Shohin S
+    ON TS.shohin_id = S.shohin_id
+ORDER BY tempo_id;
+```
+
+
+# SQLの高度な処理
+
+## ウィンドウ関数
+
+- カットと順序づけの両方の機能を持っている。
+- PARTITION BYは省略可能（その時はすべてのレコードで順序づけを行う）
+- PARTITIONで区切られた部分集合を「ウィンドウ」と呼ぶ
+- 原則、SELECT句のみで使える
+
+```sql
+SELECT shohin_mei, shohin_bunrui, hanbai_tanka,
+       RANK () OVER (PARTITION BY shohin_bunrui
+                      ORDER BY hanbai_tanka) AS ranking
+  FROM Shohin;
+```
+
+ウィンドウ関数には種類がある
+
+- RANK関数
+  - ランキングを算出、同順位がある時は後続の順位が飛ぶ
+  - 1, 1, 1, 4, ...
+- DENSE_RANK関数
+  - 同順位があっても、後続の順位が飛ばない
+  - 1, 1, 1, 2, ...
+- ROW_NUMBER関数
+  - 一連の連番を付与する
+  - 1, 2, 3, 4, ...
+
+## ウィンドウ関数（集約関数Ver）
+
+- そのレコードより上のものを全て足している → 累積和
+
+```sql
+SELECT shohin_id, shohin_mei, hanbai_tanka,
+       SUM(hanbai_tanka) OVER (ORDER BY shohin_id) AS cur_sum
+  FROM Shohin;
+```
+
+- 移動平均を計算
+- オプションの集計範囲は「フレーム」と呼ばれる
+- `ROWS 2 PRECEDING`はカレントレコードと2つ前までの3つで算出する
+- `FOLLOWING`で後ろのレコードも指定可能
+
+```sql
+SELECT shohin_id, shohin_mei, hanbai_tanka,
+       AVG(hanbai_tanka) OVER (ORDER BY shohin_id
+                                ROWS 2 PRECEDING) AS moving_avg
+  FROM Shohin; 
+```
+
+
+```sql
+SELECT shohin_id, shohin_mei, hanbai_tanka
+       AVG(hanbai_tanka) OVER (ORDER BY shohin_id
+                                ROWS BETWEEN 1 PRECEDING AND
+                                1 FOLLOWING) AS moving_avg
+  FROM Shohin; 
+```
+
+- ORDER BYが2つ出てくる時があるが違う処理をしている
+- ランキングを作ったときに、順位は保証されない → ORDER BY
+
+```sql
+SELECT shohin_id, shohin_mei, hanbai_tanka,
+       RANK () OVER (ORDER BY hanbai_tanka) AS ranking
+  FROM Shohin
+ ORDER BY ranking;
+```
+
