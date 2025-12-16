@@ -424,3 +424,83 @@ SELECT shohin_id, shohin_mei, hanbai_tanka,
  ORDER BY ranking;
 ```
 
+## GROUPING演算子
+
+- 小計・合計を一緒に求めたい（GROUP BYだけでは求められない）
+  - 合計してUNIONでくっつけることはできないでもない、、、 
+- 一部のDBMSでサポートしていない場合がある
+- `ROLLUP`, `CUBE`, `GROUPING SETS`の3種類
+
+
+
+- `ROLLUP`
+  - 小計と合計を一緒に求める
+  - 集計キーは、全て、指定キーで集計
+  - 全ての時の集約キーはNULLになる
+  - NULLが出るので注意
+
+
+```sql
+SELECT shohin_bunuri, SUM(hanbai_tanka) AS sum_tanka
+  FROM Shohin
+ GROUP BY ROLLUP(shohin_bunrui);
+```
+
+```sql
+SELECT shohin_bunuri, tourokubi, SUM(hanbai_tanka) AS sum_tanka
+  FROM Shohin
+ GROUP BY ROLLUP(shohin_bunrui, tourokubi);
+```
+
+- `GROUPING`演算子を使うと、それが単にNULLなのか、超集合行のために生じたNULL化を判別できる
+
+
+```sql
+SELECT CASE WHEN GROUPING(shohin_bunrui) = 1
+            THEN '商品分類 合計'
+            ELSE shohin_bunrui END AS shohin_bunrui,
+       CASE WHEN GROUPING(torokubi) = 1
+            THEN '登録日 合計'
+            ELSE CAST(torokubi AS VERCCHAR(16)) END AS torokubi,
+       SUM(hanbai_tanka) AS sum_tanka
+  FROM Shohin
+ GROUP BY ROLLUP(shohin_bunrui, torokubi);
+```
+
+
+- `CUBE`
+  - 集約キーで切り分けられたブロックを積み上げた立方体のイメージ
+  - 集約キーの組み合わせを全て考える
+
+
+```sql
+SELECT CASE WHEN GROUPING(shohin_bunrui) = 1
+            THEN '商品分類 合計'
+            ELSE shohin_bunrui END AS shohin_bunrui,
+       CASE WHEN GROUPING(torokubi) = 1
+            THEN '登録日 合計'
+            ELSE CAST(torokubi AS VERCCHAR(16)) END AS torokubi,
+       SUM(hanbai_tanka) AS sum_tanka
+  FROM Shohin
+ GROUP BY CUBE(shohin_bunrui, torokubi);
+```
+
+## Tips
+
+- NULLが入っているレコードを上に持っていきたい
+  - NULLを一番小さい数、日付にキャストする
+  - `NULLS FIRST`を使う
+
+
+
+```sql
+SELECT torokubi, shohin_mei, hanbai_tanka,
+       SUN(haibai_tanka) OVER (ORDER BY COREACE(torokubi, CAST('0001-01-01' AS DATE))) AS cur_sum_tanka
+       FROM Shohin;
+```
+
+```sql
+SELECT torokubi, shohin_mei, hanbai_tanka,
+       SUN(haibai_tanka) OVER (ORDER BY torokubi NULLS FIRST) AS cur_sum_tanka
+       FROM Shohin;
+```
