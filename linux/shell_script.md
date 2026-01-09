@@ -140,3 +140,44 @@ fi
 # -H: 引数にファイルが一つだけでもマッチした行の前にファイル名を表示する
 find "$directory" -type f -name "$name" | xargs grep -nH "$pattern"
 ```
+
+
+# Tips
+
+```bash
+# エラーが起きたら終了する
+set -e
+
+hoge_env="test"
+# -nで空文字ではないことを調べる
+if [ -n "$1" ]; then
+    hoge_env=$1
+fi
+
+# パッケージが入っているかチェック
+# &> /dev/nullは標準出力、エラー出力を破棄するリダイレクト。結果は表示しない
+dpkg -s python3-venv &> /dev/null
+
+# -neはnot equal
+if [ $? -ne 0 ]; then
+    # -yは確認プロンプトをスキップして自動でyesにする
+    apt-get -y install python3-venv
+fi
+
+# --system-site-packages: システム側のパッケージを継承してキャッシュを利用できる
+python3 -m venv --system-site-packages eval_venv
+source eval_venv/bin/activate
+
+# pip自体のアップデート
+pip install -U pip
+pip install -r ./requirements.txt
+
+# コンパイラに合わせたソースビルド
+git clone -b v1.7.1 https://github.com/xxxyyyzzz.git
+cd mmcv/
+# 環境変数付きでパッケージをインストール
+MAX_JOBS=8 MMCV_WITH_OPS=1 MMCV_WITH_CUDA=1 python setup.py install
+cd ../ && rm -rf mmcv/
+
+MAX_JOBS=4 pip install --no-build-isolation flash-attn==x.x.x
+```
