@@ -180,4 +180,14 @@ MAX_JOBS=8 MMCV_WITH_OPS=1 MMCV_WITH_CUDA=1 python setup.py install
 cd ../ && rm -rf mmcv/
 
 MAX_JOBS=4 pip install --no-build-isolation flash-attn==x.x.x
+
+git clone https://github.com/xxxyyyzzz.git
+cd torch2trt/
+python setup.py install
+cmake -B build . && cmake --build build --target install && ldconfig 
+cd ../ && rm -rf torch2trt
+
+cd projects/mmdet3d_plugin/ops
+python setup.py develop
+cd ../../../
 ```
